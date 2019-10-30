@@ -2,3 +2,10 @@
 # About the project
 
 *Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you can use R Markdown syntax.*
+I am feeling excited!
+
+Here is the link for my github
+
+https://github.com/vinnu0143/IODS-project
+
+And here is the link to the diary page:
