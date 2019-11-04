@@ -1,6 +1,6 @@
 ---
 title: "IODS course project"
-author: "Arun Tonduru"
+author: "Arun kumar Tonduru"
 output:
   html_document:
     theme: cosmo

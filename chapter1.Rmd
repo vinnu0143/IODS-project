@@ -2,6 +2,7 @@
 # About the project
 
 *Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you can use R Markdown syntax.*
+
 I am feeling excited!
 
 Here is the link for my github
@@ -9,3 +10,8 @@ Here is the link for my github
 https://github.com/vinnu0143/IODS-project
 
 And here is the link to the diary page:
+https://vinnu0143.github.io/IODS-project/
+
+I expect to learn about open science, sharing the data using Github and learn some programming using R which will make my life easier for doing some statistics in my research work.
+
+I heard about this course from yammer group
