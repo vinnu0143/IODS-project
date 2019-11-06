@@ -1,6 +1,5 @@
 ---
 title: "IODS course project"
-
 author: "Arun Kumar Tonduru"
 output:
   html_document:
