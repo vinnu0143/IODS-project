@@ -85,6 +85,7 @@ Coefficient of determination $R^2$ = `r results2$r.squared` that is not particul
 ```{r fig3, fig.path="figures/"}
 plot(my_model2, which=c(1,2,5))
 ```
+
 The residual vs fitted values show good random distributoion and is linear reasonably.
 
 
