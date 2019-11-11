@@ -388,7 +388,7 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#about-the-project">About the project</a></li>
-<li><a href="#insert-chapter-2-title-here">Insert chapter 2 title here</a></li>
+<li><a href="#regression-and-model-validation">Regression and model validation</a></li>
 </ul>
 </div>
 
@@ -405,18 +405,15 @@ summary {
 <p>I heard about this course from yammer group</p>
 <hr />
 </div>
-<div id="insert-chapter-2-title-here" class="section level1">
-<h1>Insert chapter 2 title here</h1>
-<p><em>Describe the work you have done this week and summarize your learning.</em></p>
-<ul>
-<li>Describe your work and results clearly.</li>
-<li>Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.</li>
-<li>Assume the reader has no previous knowledge of your data or the more advanced methods you are using.</li>
-</ul>
-<pre><code>arun kumar</code></pre>
-<p><span class="math display">\[
-equations
-\]</span></p>
+<div id="regression-and-model-validation" class="section level1">
+<h1>Regression and model validation</h1>
+<p>This week we start the data wrangling, do some exploratory examination of the data and fit a simple linear model to the data.</p>
+<p>##Reading data Code for data creation is available at: <a href="https://github.com/rsund/IODS-project/blob/master/data/create_learning2014.R" class="uri">https://github.com/rsund/IODS-project/blob/master/data/create_learning2014.R</a></p>
+<p>Let’s read the data in and make sure that gender is converted to factor</p>
+<pre><code>setwd(&quot;~/IODS-project&quot;)
+library(dplyr)
+learning2014 &lt;- readxl::read_excel(&quot;~/IODS-project/data/learning2014.xlsx&quot;) %&gt;%
+  mutate_at(vars(gender), factor)</code></pre>
 <hr />
 </div>
 
