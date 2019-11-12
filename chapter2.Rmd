@@ -67,7 +67,7 @@ knitr::kable(results$coefficients, digits=3, caption="Regression coefficients")
 ```
 
 Intercept as well as attitude are statistically significant predictors. 
-Coefficient of determination $R^2$ = `r results$r.squared` that is not particularly high.
+Coefficient of determination $R^2$ = `r results$r.squared` which is not so high. But what we can interpret from the model is that for every 3.525 increase in attitude leads to 11.637 increase in points. There is a positive correlation etween attitude and points. 
 Probably some more predictors could be added to the model.
 
 ## Multiple Linear regression
@@ -78,14 +78,28 @@ results2 <- summary(my_model2)
 knitr::kable(results2$coefficients, digits=3, caption="Regression coefficients2")
 ```
 
-Intercept as well as attitude are statistically significant predictors. But the stra and surf are not statistically significant.
-Coefficient of determination $R^2$ = `r results2$r.squared` that is not particularly high.
+Intercept as well as attitude are statistically significant predictors. But the stra and surf are not statistically significant. Surf shows negative correlation with points, whereas stra shows positive correlation along with attitude against points. All combined there is a small improvement in coefficient of determination from using one variable to three. I guess this is the maximum correlation one can get for this dataset. 
+
+From the intercept we can infer that for every 3.395 increase in attitude, o.853 increase in stra and 0.586 decrease in surf there is an increase of 11.017 of points. 
+
+Coefficient of determination $R^2$ = `r results2$r.squared` which is not high but .
 
 ### Diagnostic plots
+
+The diagnostic plots can reveal further the quality of the model. 
+
 ```{r fig3, fig.path="figures/"}
 plot(my_model2, which=c(1,2,5))
 ```
 
-The residual vs fitted values show good random distributoion and is linear reasonably.
+From the residuals vs fitted plot we can assume that 
+
+The residuals bounce randomly around the 0 line, this suggests that the relationship is linear. There are some values which are very far and is the cause for the line not be a striaght line. These are kind of outliers which raise errors in the dataset.
+
+From the QQ plot one can see that most of the values fall on the straight line. There are some outliers which cause randomness in the dataset. 
+
+From the Reiduals vs levarage plot most of the values fall away from the cooks distance but some values like 145, 35,75 looks like they are outliers.
+
+From all the multiple linear regression assessment we can see that the cofficient of determination is too low to consider the model. I would suggest that we have more data for bulding a good model.
 
 
