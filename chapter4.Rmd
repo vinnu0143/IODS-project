@@ -203,7 +203,7 @@ plot(lda.fit2, dimen = 2, col= classes, pch=classes)
 lda.arrows(lda.fit2, myscale = 2)
 ``` 
 
-The graph above is LDA model with the K-means clusters as target variable and Boston data frame as data. The variable with the longest arrow is nitrogen oxides concentration (nox) and it divides the data frames observations into two separate areas. From the other variables it is harder to say which one could be influential linear separator, so let's look at the graphs vectors more closely.
+The graph above is LDA model with the K-means clusters as target variable and Boston data frame as data. The variable with the longest arrow is nitrogen oxides concentration (nox) and it divides the data frames observations into two separate areas. We can see more closely below.
 
 ```{r bonusclose, echo=FALSE}
 plot(lda.fit2, dimen = 2, col= classes, pch=classes)
@@ -225,8 +225,8 @@ matrix_product <- as.data.frame(matrix_product)
 plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers', color = train$crime)
 ```
 
-As a super bonus task I ran the given code that makes the three matrix products from previous LDA (not the one in Bonus task) and inserts the into plot_ly function. The result is this beautiful 3D graph. If you move your mouse over the observations, you can see their exact coordinates.
 
+The three matrix produts from previous LDA is inserted into plot_ly function. We can see the above 3D graph which can be moved.
 
 
 
