@@ -10,6 +10,11 @@ Belsley D.A., Kuh, E. and Welsch, R.E. (1980) Regression Diagnostics. Identifyin
 ## load the Boston data and explore
 
 ```{r}
+library(MASS)
+library(tidyverse)
+library(corrplot)
+library(ggplot2)
+library(GGally)
 
 # access the MASS package
 library(MASS)
@@ -25,9 +30,10 @@ summary(Boston)
 pairs(Boston)
 ```
 
-The Boston housing dataset consists of 506 observations with 14 variablels from suburbs of Boston.These compare the age of the buildings, prices of the buildings, area nitrogen oxide concentrations, average number of rooms for dwelling, proportion of non-retail business acres per town etc. 
+The Boston housing dataset consists of 506 rows with 14 columns from suburbs of Boston.These compare the age of the buildings, prices of the buildings, area nitrogen oxide concentrations, average number of rooms for dwelling, proportion of non-retail business acres per town etc. 
 
-#Graphical Overview
+
+##Graphical Overview
 
 ```{r}
 library(tidyverse)
@@ -41,7 +47,11 @@ cor_matrix
 # visualize the correlation matrix
 corrplot(cor_matrix, method="circle", type="upper", cl.pos="b", tl.pos="d", tl.cex = 0.6)
 ```
-The dataset shows good correlation 
+Above is the correlation chart of the values. Size of the circle varies according to correlation coefficents. The color of the circle indicates whether it is negatively or positively correlating.
+
+In here it's visible that rad (index of accessibility to radial highways) correlates positively to tax (full-value property-tax rate per \$10,000.) and lstat(lower status of the population (percent)) correlates negatively with medv (median value of owner-occupied homes in \$1000s). High positive correlation can be seen between nox and indus.
+
+##Standardizing
 ```{r}
 # center and standardize variables
 boston_scaled <- scale(Boston)
@@ -56,6 +66,7 @@ class(boston_scaled)
 boston_scaled <- as.data.frame(boston_scaled)
 ```
 
+All the data is standardized now using scale function. Compared to earlier summary, the values have changed from positive to negative and minimized in size. 
 
 ```{r}
 # summary of the scaled crime rate
@@ -78,6 +89,7 @@ boston_scaled <- dplyr::select(boston_scaled, -crim)
 boston_scaled <- data.frame(boston_scaled, crime)
 ```
 
+##Creating training and test datasets
 
 ```{r}
 # number of rows in the Boston dataset 
@@ -99,6 +111,7 @@ correct_classes <- test$crime
 test <- dplyr::select(test, -crime)
 ```
 
+##Fitting linear discriminat analysis on training set
 ```{r}
 # linear discriminant analysis
 lda.fit <- lda(crime ~ ., data = train)
@@ -121,8 +134,10 @@ classes <- as.numeric(train$crime)
 
 # plot the lda results
 plot(lda.fit, dimen = 2, col = classes, pch = classes)
-lda.arrows(lda.fit, myscale = 1)
+lda.arrows(lda.fit, myscale = 2)
 ```
+
+The plot shows that crime rate stands out from the rest of the data.
 
 ```{r}
 # predict classes with test data
@@ -132,48 +147,89 @@ lda.pred <- predict(lda.fit, newdata = test)
 table(correct = correct_classes, predicted = lda.pred$class)
 ```
 
-```{r}
-library(MASS)
-data('Boston')
+##K-Means clustering
 
-# euclidean distance matrix
+```{r reload, echo=FALSE}
+data("Boston")
+boston_scaled <- scale(Boston)
 dist_eu <- dist(Boston)
-
-# look at the summary of the distances
-summary(dist_eu)
-
-# manhattan distance matrix
-dist_man <- dist(Boston, method = 'manhattan')
-
-# look at the summary of the distances
-summary(dist_man)
-```
-
-```{r}
-# k-means clustering
-km <-kmeans(Boston, centers = 3)
-
-# plot the Boston dataset with clusters
+km <-kmeans(dist_eu, centers = 15)
 pairs(Boston, col = km$cluster)
 ```
 
-```{r}
-# Boston dataset is available
+The plot is very difficult to understand sos let us interpret it using within cluster sum of squared (wcss).
+
+```{r wcss, echo=FALSE}
 set.seed(123)
+dist_eu <- dist(Boston)
+k_max <- 15
+twcss <- sapply(1:k_max, function(k){kmeans(dist_eu, k)$tot.withinss})
+plot(1:k_max, twcss, type='b')
+``` 
 
-# determine the number of clusters
-k_max <- 10
-
-# calculate the total within sum of squares
-twcss <- sapply(1:k_max, function(k){kmeans(Boston, k)$tot.withinss})
-
-# visualize the results
-qplot(x = 1:k_max, y = twcss, geom = 'line')
-
-# k-means clustering
-km <-kmeans(Boston, centers = 2)
-
-# plot the Boston dataset with clusters
+Form the above graph we can see that the highest drop of total wcss is at cluster number 2. So the best cluster number is 2.
+```{r kmeans, echo=FALSE}
+km <-kmeans(dist_eu, centers = 2)
 pairs(Boston, col = km$cluster)
 ```
+
+The new graph shows only 2 clusters.
+
+##Bonus
+
+The dataset is reloaded and standardized. The graph below has 4 cluster centers.
+
+
+
+```{r bonus, echo=FALSE}
+#install.packages("plotly")
+library(plotly)
+library(MASS)
+data("Boston")
+boston_scaled <- scale(Boston)
+dist_eu <- dist(Boston)
+km <-kmeans(dist_eu, centers = 4)
+pairs(Boston, col = km$cluster)
+lda.fit2 <- lda(km$cluster ~., data = Boston)
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+plot(lda.fit2, dimen = 2, col= classes, pch=classes)
+lda.arrows(lda.fit2, myscale = 2)
+``` 
+
+The graph above is LDA model with the K-means clusters as target variable and Boston data frame as data. The variable with the longest arrow is nitrogen oxides concentration (nox) and it divides the data frames observations into two separate areas. From the other variables it is harder to say which one could be influential linear separator, so let's look at the graphs vectors more closely.
+
+```{r bonusclose, echo=FALSE}
+plot(lda.fit2, dimen = 2, col= classes, pch=classes)
+lda.arrows(lda.fit2, myscale = 10)
+```
+
+The two variables showing to be linear separators are variables index of accessibility to radial highways (rad) and Charles River dummy variable (chas) that separate the observations from cluster one from the rest of the group. 
+
+
+##Super bonus
+
+
+```{r superbonus, echo=FALSE}
+model_predictors <- dplyr::select(train, -crime)
+dim(model_predictors)
+dim(lda.fit$scaling)
+matrix_product <- as.matrix(model_predictors) %*% lda.fit$scaling
+matrix_product <- as.data.frame(matrix_product)
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers', color = train$crime)
+```
+
+As a super bonus task I ran the given code that makes the three matrix products from previous LDA (not the one in Bonus task) and inserts the into plot_ly function. The result is this beautiful 3D graph. If you move your mouse over the observations, you can see their exact coordinates.
+
+
+
+
+
+
 
