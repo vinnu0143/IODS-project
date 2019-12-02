@@ -1,0 +1,94 @@
+# Chapter5: Dimensionality reduction techniques
+
+```{r setup5, echo=FALSE, include=FALSE}
+library(dplyr)
+library(tidyr); library(dplyr); library(ggplot2)
+library(stringr)
+library(FactoMineR)
+library(ggplot2)
+human <- read.csv("C:/Users/vinnu/Documents/IODS-project/data/human.csv")
+```
+
+## Introdution
+
+In this chapter we analyse data from UNs Development programs Human Development Index (HDI) and Gender Inequality Index data frames. These are combined together to be a data frame named "Human". 
+More about the data frame here: [UN development programs: HDI] (http://hdr.undp.org/en/content/human-development-index-hdi)
+
+```{r human, echo=FALSE}
+str(human)
+dim(human)
+colnames(human)
+```
+
+The data frame consists sof 9 variables and X is the row names i.e. country names.
+
+
+```{r overview5, echo=FALSE}
+summary(human)
+plot(human, col="light green")
+```
+
+The summary of the variables shows the data types. Edu2FM is the ratio of secondary education and Labo.FM ratio of labour force participation wrangled in previous exercise. Life Exp shows the life expectancy in different nations where on average people live approximately 71 years. Expected years of education (Edu.exp) shows that in minimum people go to school for is 5 years.  
+
+```{r plots5, echo=FALSE}
+library(stringr)
+library(corrplot)
+human$GNI<- str_replace(human$GNI, pattern=",", replace ="") %>% as.numeric()
+human_ <- select(human, -X)
+cor_matrix<-cor(human_) %>% round(digits= 2)
+corrplot(cor_matrix, type="upper", cl.pos="b", tl.pos="d", tl.cex = 0.6, method="circle")
+```
+
+The correlation plot shows that there are strong correlations between the variables. In this graph clearly life expectancy correlates positively with expected years of education.
+
+## Principal component analysis (PCA)
+
+To perform PCA the data frame should be numeric and removing the strings i.e. country names this was doen in the earlier step. 
+
+```{r pca1, echo=FALSE}
+pca_human <- prcomp(human_)
+biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "light green"))
+```
+
+
+The above plot has not been standardzed so we see a strange shape. PCA maximizes variance between variables and it requires standardizing.
+
+
+```{r pca2, echo=FALSE}
+human_std <- scale(human_)
+pca_human2 <- prcomp(human_std)
+biplot(pca_human2, choices = 1:2, cex = c(0.8, 0.9), col = c("grey40", "light green"))
+```
+
+From the vectors, we can conclude the correlations from aboves correlation matrix. There are clearly three groups of correlation that are recognizable from the vectors. Life expectancy and expected education come close to PC2 and point close to each other. Proportion of womens seats in parliament correlate with labour force participation rate mean.
+
+
+##Multiple correspondence analysis (MCA)
+
+Here we loaded the tea dataset from FactorMiner library, to perform Multiple Correspondence Analysis.This set contains answers from poll on things related to tea time.
+
+
+```{r tea, echo=FALSE}
+data(tea)
+str(tea)
+dim(tea)
+keep_columns<- c("Tea", "evening", "dinner", "friends", "where")
+tea_time<- select(tea, one_of(keep_columns))
+par(mfrow=c(2,3))
+for (i in 1:ncol(tea_time)) {
+  plot(tea_time[,i], main=colnames(tea_time)[i],
+       ylab = "Count", col="light green", las = 2)
+  }
+```
+
+To perform MCA, we choose variables Tea, Evening, Dinner, Friends and Where.
+
+
+
+```{r tea_analysis, echo=FALSE}
+mca <- MCA(tea_time, graph = FALSE)
+summary(mca)
+plot(mca, invisible=c("ind"), habillage = "quali")
+```
+
+Dinner, tea shop ad green tea variables stand away from the group. They do not come close to the other group. Also dinner and tea shop correlate each other. All the other variales are together at the origin of the dimension values.
