@@ -1,0 +1,99 @@
+# Chapter 6. Analysis of longitudinal data
+
+## Loading the datasets
+```{r, message = FALSE}
+library(ggplot2); library(dplyr); library(tidyr)
+RATSL <- read.csv(file = "C:/Users/vinnu/Documents/IODS-project/data/RATSL.csv")
+RATSL$ID <- factor(RATSL$ID)
+RATSL$Group <- factor(RATSL$Group)
+str(RATSL)
+BPRSL <- read.csv(file = "C:/Users/vinnu/Documents/IODS-project/data/BPRSL.csv")
+BPRSL$treatment <- factor(BPRSL$treatment)
+BPRSL$subject <- factor(BPRSL$subject)
+str(BPRSL)
+```
+
+In RATS we have three groups on differnet diets.
+
+
+## Analyses on RATS 
+
+### Graphs
+``` {r}
+# Graphs of RATS
+ggplot(RATSL, aes(x = Time, y = weight, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(RATSL$weight), max(RATSL$weight))) +
+  ggtitle("Individual response profiles by group for the RATSL data")
+```
+
+### Standardized graphs
+``` {r}
+RATSL <- RATSL %>%
+  group_by(Time) %>%
+  mutate(stweigth = (weight - mean(weight))/sd(weight) ) %>%
+  ungroup()
+glimpse(RATSL)
+ggplot(RATSL, aes(x = Time, y = stweigth, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:16, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(name = "standardized weigth") +
+  ggtitle("Individual response profiles by group for RATSL data after standardization")
+```
+
+### Summary graph
+``` {r}
+# Number of time, baseline (week 0) included
+n <- RATSL$Time %>% unique() %>% length()
+# Summary data with mean and standard error of bprs by treatment and week 
+RATSS <- RATSL %>%
+  group_by(Group, Time) %>%
+  summarise(mean = mean(weight), se = sd(weight)/sqrt(n) ) %>%
+  ungroup()
+# Glimpse the data
+glimpse(RATSS)
+# Plot the mean profiles
+ggplot(RATSS, aes(x = Time, y = mean, linetype = Group, shape = Group)) +
+  geom_line() +
+  scale_linetype_manual(values = c(1,2,3)) +
+  geom_point(size=3) +
+  scale_shape_manual(values = c(1,2,3)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se, linetype="1"), width=0.4) +
+  theme(legend.position = c(0.8,0.4)) +
+  scale_y_continuous(name = "mean(weigth) +/- se(weigth)") +
+  ggtitle("Mean response profiles for the three groups in the RATS data.")
+```
+  
+The mean profiles plot shows that the error bars do not overlap.
+
+
+
+## Analyses on BPRS data
+
+### Plotting
+```{r}
+# plotting again 
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))
+```
+  
+From the plot we see, that between the two treatments there seem to no clear difference. With both bprs measure decreases with time, so treatments seem to work.
+
+### Linear regression model
+```{r}
+# let's fit a linear regression
+BPRS_reg <- lm(bprs ~ week + treatment, data = BPRSL)
+# print out a summary of the model
+summary(BPRS_reg)
+BPRS_reg
+```
+Treatment2 does not seem to differ from treatmet1.
